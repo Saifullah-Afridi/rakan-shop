@@ -1,0 +1,22 @@
+@import "tailwindcss";
+/* Brand colors. Use them as bg-brand, text-muted, border-line, etc. */
+@theme {
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+  --color-brand: #0a4a2a;
+  --color-brand-light: #0d6b3c;
+  --color-accent: #f7e03a;
+  --color-card: #f4f4f3;
+  --color-line: #e6e7e3;
+  --color-muted: #6b736d;
+  --color-sale: #d3222a;
+}
+html {
+  scroll-behavior: smooth;
+}
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--color-brand-light);
+  outline-offset: 2px;
+}
