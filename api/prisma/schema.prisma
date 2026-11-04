@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// id is the link name made from the category name, e.g. "fresh-juices" (used in /shop?category=...)
+model Category {
+  id          String    @id
+  name        String
+  description String    @default("")
+  icon        String    @default("Carrot")
+  color       String    @default("#138040")
+  tint        String    @default("#dff3e0")
+  image       String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String   @default("")
+  farm        String   @default("")
+  price       Decimal  @db.Decimal(10, 2) // JOD per 0.25 kg, as set in the admin form
+  unit        String   @default("kg")
+  minQuantity Float    @default(0) // minimum stock quantity in kg
+  image       String?
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([categoryId])
+}

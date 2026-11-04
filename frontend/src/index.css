@@ -1,0 +1,50 @@
+@import "tailwindcss";
+/* Brand colors. Use them as bg-brand, text-muted, border-line, etc. */
+@theme {
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+  --color-brand: #138040; /* leaf green: buttons, links, active states */
+  --color-brand-dark: #0b5a2a; /* deep green: hover, footer, admin sidebar */
+  --color-brand-light: #0b5a2a; /* old name, kept so older components still work */
+  --color-accent: #ffb703; /* citrus amber: cart badge, small highlights */
+  --color-mint: #eaf6ee; /* soft panels: hero, product image area */
+  --color-card: #f0f7f2;
+  --color-line: #dce9e0;
+  --color-muted: #5b6f61;
+  --color-ink: #14281c;
+  --color-sale: #e03131;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  background: #fbfdfb;
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+::selection {
+  background: var(--color-accent);
+  color: var(--color-ink);
+}
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Toast colors follow the brand */
+:root {
+  --toastify-color-success: var(--color-brand, #138040);
+  --toastify-color-error: var(--color-sale, #e03131);
+  --toastify-font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+}
