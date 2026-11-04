@@ -32,7 +32,10 @@ export function ShopPage() {
   return (
     <>
       <Container className="mt-10">
-        <h2 id="products" className="mb-4 scroll-mt-32 text-3xl font-bold">
+        <h2
+          id="products"
+          className="mb-4 scroll-mt-32 text-2xl  text-brand  font-bold"
+        >
           {title}
         </h2>
         <FilterBar
