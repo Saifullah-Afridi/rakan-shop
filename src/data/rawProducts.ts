@@ -64,4 +64,4 @@ super|Aged Basmati Rice|Rakan Pantry|1.80|kg|0|
 super|Local Red Lentils|Rakan Pantry|1.20|kg|0|
 super|Local Chickpeas|Rakan Pantry|1.30|kg|0|
 super|Zaatar Mix|Irbid Spice House|2.50|pack|0|
-super|Coarse Bulgur|Rakan Pantry|1.00|kg|0|`
+super|Coarse Bulgur|Rakan Pantry|1.00|kg|0|`;

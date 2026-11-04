@@ -1,83 +1,208 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
-import type { Category, Product, Unit } from "../../types";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import type { Category, Product } from "../../types";
 import type { ProductInput } from "../../types/admin";
 import { FormButtons, FormField, inputClass } from "./FormField";
-
-const UNITS: Unit[] = ["kg", "bunch", "head", "bottle", "pack"];
 
 interface Props {
   initial?: Product;
   categories: Category[];
   saving: boolean;
   error?: string;
-  onSubmit: (input: ProductInput) => void;
+  onSubmit: (input: ProductInput, imageFile: File | null) => void;
   onCancel: () => void;
 }
 
-export function ProductForm({ initial, categories, saving, error, onSubmit, onCancel }: Props) {
+export function ProductForm({
+  initial,
+  categories,
+  saving,
+  error,
+  onSubmit,
+  onCancel,
+}: Props) {
   const [f, setF] = useState({
     name: initial?.name ?? "",
+    description: initial?.description ?? "",
     categoryId: initial?.categoryId ?? categories[0]?.id ?? "",
-    farm: initial?.farm ?? "",
-    unit: initial?.unit ?? ("kg" as Unit),
     price: initial ? String(initial.price) : "",
-    discount: initial ? String(initial.discount) : "0",
-    tag: initial?.tag ?? "",
+    minQuantity:
+      initial?.minQuantity != null ? String(initial.minQuantity) : "",
     image: initial?.image ?? "",
   });
+
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState(initial?.image ?? "");
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const set = (key: keyof typeof f) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setF({ ...f, [key]: e.target.value });
+
+  useEffect(() => {
+    if (!imageFile) return;
+
+    const previewUrl = URL.createObjectURL(imageFile);
+    setImagePreview(previewUrl);
+
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [imageFile]);
+
+  const set =
+    (key: keyof typeof f) =>
+    (
+      e: ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >,
+    ) => {
+      setF((current) => ({ ...current, [key]: e.target.value }));
+    };
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    setImageFile(file);
+
+    if (!file) {
+      setImagePreview(f.image);
+    }
+  };
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
+
     const price = Number(f.price);
-    const discount = Number(f.discount || 0);
+    const minQuantity = Number(f.minQuantity);
     const found: Record<string, string> = {};
+
     if (!f.name.trim()) found.name = "Enter a product name";
+    if (!f.description.trim()) {
+      found.description = "Enter a product description";
+    }
     if (!f.categoryId) found.categoryId = "Choose a category";
-    if (!(price > 0)) found.price = "Price must be more than 0";
-    if (discount < 0 || discount > 90) found.discount = "Use a number from 0 to 90";
+    if (!(price > 0)) {
+      found.price = "Price per 0.25 kg must be more than 0";
+    }
+
+    if (f.minQuantity.trim() && !(minQuantity > 0)) {
+      found.minQuantity = "Minimum stock quantity must be more than 0";
+    }
+
     setErrors(found);
     if (Object.keys(found).length > 0) return;
-    onSubmit({
-      name: f.name.trim(), categoryId: f.categoryId, farm: f.farm.trim(), unit: f.unit,
-      price, discount, tag: f.tag.trim(), image: f.image.trim(),
-    });
+
+    onSubmit(
+      {
+        name: f.name.trim(),
+        description: f.description.trim(),
+        categoryId: f.categoryId,
+        price,
+        minQuantity: f.minQuantity.trim() ? minQuantity : 0,
+        image: f.image.trim(),
+      },
+      imageFile,
+    );
   };
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-sale">{error}</p>}
+      {error && (
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-sale">
+          {error}
+        </p>
+      )}
+
       <FormField label="Product name" error={errors.name}>
-        <input autoFocus value={f.name} onChange={set("name")} className={inputClass} placeholder="Fresh Jordan Valley Tomatoes" />
+        <input
+          autoFocus
+          value={f.name}
+          onChange={set("name")}
+          className={inputClass}
+          placeholder="Fresh Jordan Valley Tomatoes"
+        />
       </FormField>
+
+      <FormField label="Description" error={errors.description}>
+        <textarea
+          value={f.description}
+          onChange={set("description")}
+          className={`${inputClass} min-h-24 resize-y`}
+          placeholder="Describe the product..."
+          rows={3}
+        />
+      </FormField>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField label="Category" error={errors.categoryId}>
-          <select value={f.categoryId} onChange={set("categoryId")} className={inputClass}>
-            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          <select
+            value={f.categoryId}
+            onChange={set("categoryId")}
+            className={inputClass}
+          >
+            <option value="">Choose a category</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
           </select>
         </FormField>
-        <FormField label="Farm or source">
-          <input value={f.farm} onChange={set("farm")} className={inputClass} placeholder="Northern Jordan Valley Farms" />
+
+        <FormField label="Price per 0.25 kg (JOD)" error={errors.price}>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            value={f.price}
+            onChange={set("price")}
+            className={inputClass}
+            placeholder="e.g. 0.50"
+          />
         </FormField>
-        <FormField label="Sold by">
-          <select value={f.unit} onChange={set("unit")} className={inputClass}>
-            {UNITS.map((u) => <option key={u} value={u}>per {u}</option>)}
-          </select>
-        </FormField>
-        <FormField label="Price (JOD)" error={errors.price}>
-          <input type="number" step="0.01" min="0" value={f.price} onChange={set("price")} className={inputClass} />
-        </FormField>
-        <FormField label="Discount % (0 = none)" error={errors.discount}>
-          <input type="number" min="0" max="90" value={f.discount} onChange={set("discount")} className={inputClass} />
-        </FormField>
-        <FormField label="Badge text (optional)">
-          <input value={f.tag} onChange={set("tag")} className={inputClass} placeholder="Grade A" />
+
+        <FormField
+          label="Minimum stock quantity (kg)"
+          error={errors.minQuantity}
+        >
+          <input
+            type="number"
+            step="0.25"
+            min="0"
+            value={f.minQuantity}
+            onChange={set("minQuantity")}
+            className={inputClass}
+            placeholder="e.g. 5"
+          />
         </FormField>
       </div>
-      <FormField label="Photo path or link (optional)">
-        <input value={f.image} onChange={set("image")} className={inputClass} placeholder="/products/tomatoes.png" />
+
+      <FormField label="Product image">
+        <label
+          htmlFor="product-image-upload"
+          className="relative block h-36 w-full cursor-pointer overflow-hidden rounded-xl border-2 border-dashed border-neutral-300 bg-neutral-50 hover:border-brand"
+        >
+          {imagePreview ? (
+            <img
+              src={imagePreview}
+              alt="Product preview"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center text-sm text-muted">
+              Click to upload image
+            </div>
+          )}
+
+          {imagePreview && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/25 text-sm font-medium text-white">
+              Click to change image
+            </div>
+          )}
+
+          <input
+            id="product-image-upload"
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="hidden"
+          />
+        </label>
       </FormField>
+
       <FormButtons saving={saving} onCancel={onCancel} />
     </form>
   );

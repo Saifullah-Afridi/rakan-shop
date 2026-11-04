@@ -9,15 +9,6 @@ export type IconKey =
   | "Wheat";
 export type SortKey = "featured" | "price-asc" | "price-desc" | "rating";
 
-// export interface Category {
-//   id: string;
-//   name: string;
-//   description: string;
-//   icon: IconKey;
-//   tint: string;
-//   image?: string;
-// }
-
 export interface Category {
   id: string;
   name: string;
@@ -31,15 +22,17 @@ export interface Product {
   id: number;
   categoryId: string;
   name: string;
+  description: string;
   farm: string;
   price: number;
-  oldPrice: number | null;
-  discount: number;
   unit: Unit;
-  tag: string;
-  rating: number;
-  reviews: number;
-  image: string; // empty for now. Put an image URL here to show a real photo.
+  minQuantity: number;
+  image: string;
+
+  // Optional legacy fields, if existing components still use them
+  oldPrice?: number | null;
+  discount?: number;
+  tag?: string;
 }
 export interface CartItem {
   productId: number;

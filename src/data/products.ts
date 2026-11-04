@@ -11,12 +11,7 @@ export const PRODUCTS: Product[] = RAW.split("\n").map((line, i) => {
     name,
     farm,
     price: p,
-    discount: d,
-    oldPrice: d ? p / (1 - d / 100) : null,
     unit: unit as Unit,
-    tag,
-    rating: +(4.5 + ((i * 7) % 5) / 10).toFixed(1),
-    reviews: 8 + ((i * 13) % 40),
     image: "",
   };
 });

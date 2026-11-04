@@ -15,32 +15,42 @@ function Stat({ label, value }: { label: string; value: number | string }) {
 export function AdminDashboardPage() {
   const { data: categories = [], isLoading: loadingC } = useAdminCategories();
   const { data: products = [], isLoading: loadingP } = useAdminProducts();
-  if (loadingC || loadingP)
-    return <div className="h-64 animate-pulse rounded-2xl bg-white" />;
 
-  const counts = categories.map((c) => ({
-    ...c,
-    total: products.filter((p) => p.categoryId === c.id).length,
+  if (loadingC || loadingP) {
+    return <div className="h-64 animate-pulse rounded-2xl bg-white" />;
+  }
+
+  const counts = categories.map((category) => ({
+    ...category,
+    total: products.filter((product) => product.categoryId === category.id)
+      .length,
   }));
-  const biggest = Math.max(1, ...counts.map((c) => c.total));
+
+  const biggest = Math.max(1, ...counts.map((category) => category.total));
+
   const latest = [...products].sort((a, b) => b.id - a.id).slice(0, 5);
+
+  const productsWithStockThreshold = products.filter(
+    (product) => product.minQuantity > 0,
+  ).length;
 
   return (
     <>
       <PageHeader
         title="Dashboard"
-        text="A quick look at what is in the store."
+        text="A quick look at your store’s products and categories."
       />
+
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Stat label="Products" value={products.length} />
         <Stat label="Categories" value={categories.length} />
         <Stat
-          label="Products on offer"
-          value={products.filter((p) => p.discount > 0).length}
+          label="Products with stock thresholds"
+          value={productsWithStockThreshold}
         />
         <Stat
           label="Empty categories"
-          value={counts.filter((c) => c.total === 0).length}
+          value={counts.filter((category) => category.total === 0).length}
         />
       </div>
 
@@ -55,19 +65,21 @@ export function AdminDashboardPage() {
               Manage
             </Link>
           </div>
+
           <ul className="space-y-3">
-            {counts.map((c) => (
-              <li key={c.id}>
+            {counts.map((category) => (
+              <li key={category.id}>
                 <div className="mb-1 flex justify-between text-sm">
-                  <span>{c.name}</span>
-                  <span className="text-muted">{c.total}</span>
+                  <span>{category.name}</span>
+                  <span className="text-muted">{category.total}</span>
                 </div>
+
                 <div className="h-2 rounded-full bg-card">
                   <div
                     className="h-2 rounded-full"
                     style={{
-                      width: `${(c.total / biggest) * 100}%`,
-                      background: c.color,
+                      width: `${(category.total / biggest) * 100}%`,
+                      background: category.color,
                     }}
                   />
                 </div>
@@ -86,15 +98,16 @@ export function AdminDashboardPage() {
               Manage
             </Link>
           </div>
+
           <ul className="divide-y divide-line">
-            {latest.map((p) => (
+            {latest.map((product) => (
               <li
-                key={p.id}
+                key={product.id}
                 className="flex items-center justify-between gap-3 py-2.5 text-sm"
               >
-                <span className="truncate">{p.name}</span>
+                <span className="truncate">{product.name}</span>
                 <span className="shrink-0 font-semibold">
-                  {formatPrice(p.price)} JOD
+                  {formatPrice(product.price)} JOD
                 </span>
               </li>
             ))}
