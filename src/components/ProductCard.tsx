@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Plus, Minus } from "lucide-react";
-import { Link } from "react-router-dom";
 
 import { useCart } from "../context/CartContext";
 import { formatPrice, amountLabel } from "../utils/format";
@@ -35,22 +34,16 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <article className="flex flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white transition-all duration-200 hover:-translate-y-1 hover:border-neutral-300 hover:shadow-lg">
       {/* Product Image */}
-      <Link
-        to={`/product/${product.id}`}
-        className="relative grid h-44 place-items-center bg-neutral-50 sm:h-48"
-      >
+      <div className="grid h-44 place-items-center bg-neutral-50 sm:h-48">
         <ProductImage product={product} />
-      </Link>
+      </div>
 
       {/* Product Information */}
       <div className="flex flex-1 flex-col p-4">
         {/* Product Name */}
-        <Link
-          to={`/product/${product.id}`}
-          className="text-base font-semibold leading-snug text-brand"
-        >
+        <p className="text-base font-semibold leading-snug text-brand">
           {product.name}
-        </Link>
+        </p>
 
         {/* Supplier */}
         <p className="mt-1 text-xs text-muted">{product.farm}</p>
@@ -71,7 +64,7 @@ export function ProductCard({ product }: { product: Product }) {
                   className={`rounded-lg border py-1.5 text-xs font-medium transition ${
                     selectedWeight === weight
                       ? "border-brand bg-brand text-white"
-                      : "border-line bg-white text-neutral-700 hover:border-brand hover:cursor-pointer"
+                      : "border-line bg-white text-neutral-700 hover:cursor-pointer hover:border-brand"
                   }`}
                 >
                   {amountLabel(weight, "kg")}
@@ -118,7 +111,7 @@ export function ProductCard({ product }: { product: Product }) {
         )}
 
         {/* Price and Add to Cart */}
-        <div className="mt-auto flex items-center justify-between gap-2 border-t border-line pt-3 mt-4">
+        <div className="mt-4 flex items-center justify-between gap-2 border-t border-line pt-3">
           <div>
             <p className="text-base font-bold text-neutral-900">
               {formatPrice(displayPrice)} JOD
